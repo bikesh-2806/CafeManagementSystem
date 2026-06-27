@@ -2,6 +2,7 @@ import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
 import { FormBuilder, Validators } from '@angular/forms';
 import { ApiService } from '../core/api.service';
 import { UiService } from '../shared/ui.service';
+import { environment } from '../../environments/environment';
 
 @Component({
   selector: 'app-admin-dashboard',
@@ -83,7 +84,7 @@ export class ItemsPageComponent implements OnInit {
   constructor(private api: ApiService, private fb: FormBuilder, private ui: UiService) {}
   get imagePreviewUrl() {
     const url = this.form.value.imageUrl ?? '';
-    return url.startsWith('/uploads') ? `http://localhost:5116${url}` : url;
+    return url.startsWith('/uploads') ? `${environment.apiBaseUrl.replace('/api', '')}${url}` : url;
   }
   ngOnInit() { this.load(); this.api.get<any[]>('menu-categories').subscribe(data => this.categories = data); }
   load() {
