@@ -1,0 +1,32 @@
+# Local tooling
+.agents/
+.tmpbuild/
+
+# Logs
+*.log
+
+# .NET
+**/bin/
+**/obj/
+*.csproj.user
+**/.data-protection-keys/
+backend/RestaurantManagement.Api/wwwroot/uploads/**
+!backend/RestaurantManagement.Api/wwwroot/uploads/**/.gitkeep
+
+# Angular / Node
+**/node_modules/
+frontend/dist/
+frontend/.angular/
+coverage/
+
+# Generated deployment artifacts
+deployment/site/
+deployment/*.zip
+
+# IDE / OS
+.vs/
+.vscode/
+.idea/
+*.user
+.DS_Store
+Thumbs.db
