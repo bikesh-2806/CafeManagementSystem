@@ -15,14 +15,17 @@ export class HomePageComponent {}
 
 @Component({
   selector: 'app-menu-page',
-  template: `<section class="page"><div class="toolbar-line"><div><span class="eyebrow">Browse</span><h1>Menu</h1></div><label class="field search-field">Search menu<input class="form-control" [(ngModel)]="search" (input)="load()" placeholder="Search dishes" /></label></div><div class="grid menu-grid"><article class="card menu-card" *ngFor="let item of items"><img *ngIf="item.imageUrl; else initial" class="menu-image" [src]="imageUrl(item)" [alt]="item.name"><ng-template #initial><div class="image-fill">{{ item.name[0] }}</div></ng-template><div class="menu-card-body"><h3>{{ item.name }}</h3><p>{{ item.description || 'Freshly prepared by HomeTown Cafe.' }}</p><b>{{ item.price | currency:'NPR ' }}</b></div></article></div><p class="empty-state" *ngIf="!items.length">No menu items found.</p></section>`
+  template: `<section class="page"><div class="toolbar-line"><div><span class="eyebrow">Browse</span><h1>Menu</h1></div><label class="field search-field">Search menu<input class="form-control" [(ngModel)]="search" (input)="load()" placeholder="Search dishes" /></label></div><div class="grid menu-grid"><article class="card menu-card" *ngFor="let item of items"><img *ngIf="hasImage(item); else initial" class="menu-image" [src]="imageUrl(item)" [alt]="item.name" (error)="imageFailed(item)"><ng-template #initial><div class="image-fill">{{ item.name[0] }}</div></ng-template><div class="menu-card-body"><h3>{{ item.name }}</h3><p>{{ item.description || 'Freshly prepared by HomeTown Cafe.' }}</p><b>{{ item.price | currency:'NPR ' }}</b></div></article></div><p class="empty-state" *ngIf="!items.length">No menu items found.</p></section>`
 })
 export class MenuPageComponent implements OnInit {
   items: MenuItem[] = [];
   search = '';
+  failedImages = new Set<number>();
   constructor(private api: ApiService) {}
   ngOnInit() { this.load(); }
-  load() { this.api.get<MenuItem[]>(`menu-items${this.search ? '?search=' + this.search : ''}`).subscribe(data => this.items = data); }
+  load() { this.api.get<MenuItem[]>(`menu-items${this.search ? '?search=' + encodeURIComponent(this.search) : ''}`).subscribe(data => this.items = data); }
+  hasImage(item: MenuItem) { return !!item.imageUrl && !this.failedImages.has(item.menuItemId); }
+  imageFailed(item: MenuItem) { this.failedImages.add(item.menuItemId); }
   imageUrl(item: MenuItem) {
     const url = item.imageUrl ?? '';
     return url.startsWith('/uploads') ? `${environment.apiBaseUrl.replace('/api', '')}${url}` : url;

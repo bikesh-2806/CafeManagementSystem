@@ -71,7 +71,7 @@ export class CategoriesPageComponent implements OnInit {
           <label class="field">Available<select class="form-select" formControlName="isAvailable"><option [ngValue]="true">Yes</option><option [ngValue]="false">No</option></select></label>
         </div>
         <div class="image-preview" *ngIf="form.value.imageUrl"><img [src]="imagePreviewUrl" alt="Menu item preview"><span>{{ form.value.imageUrl }}</span></div>
-        <div class="actions"><button class="btn btn-primary" [disabled]="form.invalid">{{ editingItemId ? 'Update item' : 'Save item' }}</button><button type="button" class="btn btn-outline-secondary" *ngIf="editingItemId" (click)="cancelEdit()">Cancel edit</button></div>
+        <div class="actions"><button class="btn btn-primary" [disabled]="form.invalid || uploadingImage">{{ uploadingImage ? 'Uploading image...' : editingItemId ? 'Update item' : 'Save item' }}</button><button type="button" class="btn btn-outline-secondary" *ngIf="editingItemId" (click)="cancelEdit()">Cancel edit</button></div>
       </form>
       <app-data-table [rows]="rows" (editRow)="edit($event)" (deleteRow)="delete($event)"></app-data-table>
     </section>`
@@ -80,6 +80,7 @@ export class ItemsPageComponent implements OnInit {
   rows: any[] = [];
   categories: any[] = [];
   editingItemId: number | null = null;
+  uploadingImage = false;
   form = this.fb.group({ name: ['', Validators.required], description: [''], price: [0, Validators.required], imageUrl: [''], categoryId: [1], isAvailable: [true] });
   constructor(private api: ApiService, private fb: FormBuilder, private ui: UiService) {}
   get imagePreviewUrl() {
@@ -118,11 +119,19 @@ export class ItemsPageComponent implements OnInit {
     const input = event.target as HTMLInputElement;
     const file = input.files?.[0];
     if (!file) return;
+    this.uploadingImage = true;
     const formData = new FormData();
     formData.append('image', file);
     this.api.upload<any>('menu-items/upload-image', formData).subscribe({
-      next: result => { this.form.patchValue({ imageUrl: result.imageUrl }); this.ui.toast('Image uploaded'); },
-      error: () => this.ui.toast('Image upload failed', 'error')
+      next: result => {
+        this.form.patchValue({ imageUrl: result.imageUrl });
+        this.uploadingImage = false;
+        this.ui.toast('Image uploaded. Save the item to apply it.');
+      },
+      error: () => {
+        this.uploadingImage = false;
+        this.ui.toast('Image upload failed', 'error');
+      }
     });
   }
   async delete(row: any) { if (await this.ui.confirm(`Delete ${row.name}?`, 'Delete menu item', 'Delete')) this.api.delete(`menu-items/${row.menuItemId}`).subscribe(() => { this.ui.toast('Menu item deleted'); this.load(); }); }
