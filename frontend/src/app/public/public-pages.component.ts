@@ -15,15 +15,55 @@ export class HomePageComponent {}
 
 @Component({
   selector: 'app-menu-page',
-  template: `<section class="page"><div class="toolbar-line"><div><span class="eyebrow">Browse</span><h1>Menu</h1></div><label class="field search-field">Search menu<input class="form-control" [(ngModel)]="search" (input)="load()" placeholder="Search dishes" /></label></div><div class="grid menu-grid"><article class="card menu-card" *ngFor="let item of items"><img *ngIf="hasImage(item); else initial" class="menu-image" [src]="imageUrl(item)" [alt]="item.name" (error)="imageFailed(item)"><ng-template #initial><div class="image-fill">{{ item.name[0] }}</div></ng-template><div class="menu-card-body"><h3>{{ item.name }}</h3><p>{{ item.description || 'Freshly prepared by HomeTown Cafe.' }}</p><b>{{ item.price | currency:'NPR ' }}</b></div></article></div><p class="empty-state" *ngIf="!items.length">No menu items found.</p></section>`
+  template: `
+    <section class="page">
+      <div class="toolbar-line">
+        <div><span class="eyebrow">Browse</span><h1>Menu</h1></div>
+        <label class="field search-field">Search menu
+          <span class="input-with-icon"><i class="fa-solid fa-magnifying-glass"></i><input class="form-control" [(ngModel)]="search" (input)="load()" placeholder="Search dishes"></span>
+        </label>
+      </div>
+      <div class="category-strip" aria-label="Menu categories">
+        <button type="button" [class.active]="selectedCategoryId === null" (click)="selectCategory(null)">
+          <i class="fa-solid fa-border-all"></i><span>All items</span><b>{{ totalItemCount }}</b>
+        </button>
+        <button type="button" *ngFor="let category of categories" [class.active]="selectedCategoryId === category.categoryId" (click)="selectCategory(category.categoryId)">
+          <i class="fa-solid fa-bowl-food"></i><span>{{ category.categoryName }}</span><b>{{ category.menuItems?.length || 0 }}</b>
+        </button>
+      </div>
+      <div class="grid menu-grid">
+        <article class="card menu-card" *ngFor="let item of items">
+          <img *ngIf="hasImage(item); else initial" class="menu-image" [src]="imageUrl(item)" [alt]="item.name" (error)="imageFailed(item)">
+          <ng-template #initial><div class="image-fill">{{ item.name[0] }}</div></ng-template>
+          <div class="menu-card-body"><h3>{{ item.name }}</h3><p>{{ item.description || 'Freshly prepared by HomeTown Cafe.' }}</p><b>{{ item.price | currency:'NPR ' }}</b></div>
+        </article>
+      </div>
+      <p class="empty-state" *ngIf="!items.length"><i class="fa-solid fa-utensils"></i> No menu items found in this category.</p>
+    </section>`
 })
 export class MenuPageComponent implements OnInit {
   items: MenuItem[] = [];
+  categories: any[] = [];
   search = '';
+  selectedCategoryId: number | null = null;
   failedImages = new Set<number>();
   constructor(private api: ApiService) {}
-  ngOnInit() { this.load(); }
-  load() { this.api.get<MenuItem[]>(`menu-items${this.search ? '?search=' + encodeURIComponent(this.search) : ''}`).subscribe(data => this.items = data); }
+  get totalItemCount() { return this.categories.reduce((total, category) => total + (category.menuItems?.length || 0), 0); }
+  ngOnInit() {
+    this.api.get<any[]>('menu-categories').subscribe(data => this.categories = data.filter(category => category.isActive));
+    this.load();
+  }
+  selectCategory(categoryId: number | null) {
+    this.selectedCategoryId = categoryId;
+    this.load();
+  }
+  load() {
+    const query = [
+      this.selectedCategoryId !== null ? `categoryId=${this.selectedCategoryId}` : '',
+      this.search ? `search=${encodeURIComponent(this.search)}` : ''
+    ].filter(Boolean).join('&');
+    this.api.get<MenuItem[]>(`menu-items${query ? '?' + query : ''}`).subscribe(data => this.items = data);
+  }
   hasImage(item: MenuItem) { return !!item.imageUrl && !this.failedImages.has(item.menuItemId); }
   imageFailed(item: MenuItem) { this.failedImages.add(item.menuItemId); }
   imageUrl(item: MenuItem) {
