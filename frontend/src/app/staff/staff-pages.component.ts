@@ -24,8 +24,9 @@ export class StaffTablesComponent implements OnInit {
         <div class="form-row">
           <label class="field">Table ID<input class="form-control" type="number" formControlName="tableId"></label>
           <label class="field">Customer ID optional<input class="form-control" type="number" formControlName="customerId"></label>
-          <button type="button" class="btn btn-outline-primary align-self-end" (click)="loadOpenOrder()">Load open order</button>
+          <button type="button" class="btn btn-outline-primary align-self-end" [disabled]="loadingOpenOrder" (click)="loadOpenOrder()">{{ loadingOpenOrder ? 'Checking...' : 'Load open order' }}</button>
         </div>
+        <p class="open-order-hint" *ngIf="openOrderMessage">{{ openOrderMessage }}</p>
         <div class="open-order-box" *ngIf="currentOrder">
           <div class="d-flex justify-content-between gap-2 flex-wrap">
             <div><b>Editing order #{{ currentOrder.orderId }}</b><p>Table {{ currentOrder.table?.tableNumber }} - {{ currentOrder.orderStatus }} - {{ currentOrder.totalAmount | currency:'NPR ' }}</p></div>
@@ -55,6 +56,8 @@ export class StaffTablesComponent implements OnInit {
 export class NewOrderComponent implements OnInit {
   menu: MenuItem[] = [];
   currentOrder: any = null;
+  loadingOpenOrder = false;
+  openOrderMessage = '';
   form = this.fb.group({ customerId: [null], waiterId: [this.auth.user?.userId], tableId: [1, Validators.required], items: this.fb.array([]) });
   get items() { return this.form.get('items') as FormArray; }
   constructor(private api: ApiService, private fb: FormBuilder, private auth: AuthService, private ui: UiService) {}
@@ -63,9 +66,25 @@ export class NewOrderComponent implements OnInit {
   removeItem(index: number) { this.items.removeAt(index); }
   loadOpenOrder() {
     const tableId = this.form.value.tableId;
+    this.loadingOpenOrder = true;
+    this.openOrderMessage = '';
     this.api.get<any>(`orders/open?tableId=${tableId}`).subscribe({
-      next: order => { this.currentOrder = order; this.ui.toast(`Loaded order #${order.orderId}`, 'info'); },
-      error: () => { this.currentOrder = null; this.ui.toast('No open editable order found for this table', 'info'); }
+      next: order => {
+        this.loadingOpenOrder = false;
+        this.currentOrder = order;
+        if (order) {
+          this.ui.toast(`Loaded order #${order.orderId}`, 'info');
+        } else {
+          this.openOrderMessage = `No open order for table ${tableId}. Add items below and submit to create a new order.`;
+          this.ui.toast('No open order found. You can create a new one below.', 'info');
+        }
+      },
+      error: () => {
+        this.loadingOpenOrder = false;
+        this.currentOrder = null;
+        this.openOrderMessage = 'Unable to check open orders. Please try again.';
+        this.ui.toast('Unable to check open orders', 'error');
+      }
     });
   }
   submit() {

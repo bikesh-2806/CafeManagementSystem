@@ -44,7 +44,9 @@ public class OrdersController : ControllerBase
                 && x.Bill == null
                 && x.OrderStatus != OrderStatus.Completed
                 && x.OrderStatus != OrderStatus.Cancelled);
-        return order is null ? NotFound(ApiResponse<object>.Fail("No open order found for this table")) : Ok(ApiResponse<object>.Ok(order));
+        return Ok(ApiResponse<object>.Ok(order, order is null
+            ? "No open order found for this table."
+            : "Open order loaded successfully."));
     }
 
     [Authorize(Roles = "Waiter,Staff,Customer")]
