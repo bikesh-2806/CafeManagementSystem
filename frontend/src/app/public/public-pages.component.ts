@@ -19,43 +19,82 @@ export class HomePageComponent {}
     <section class="page">
       <div class="toolbar-line">
         <div><span class="eyebrow">Browse</span><h1>Menu</h1></div>
-        <label class="field search-field">Search menu
-          <span class="input-with-icon"><i class="fa-solid fa-magnifying-glass"></i><input class="form-control" [(ngModel)]="search" (input)="load()" placeholder="Search dishes"></span>
-        </label>
+        <div class="menu-tools">
+          <label class="field search-field">Search menu
+            <span class="input-with-icon"><i class="fa-solid fa-magnifying-glass"></i><input class="form-control" [(ngModel)]="search" (input)="load()" placeholder="Search dishes"></span>
+          </label>
+          <label class="field sort-field">Sort by
+            <select class="form-select" [(ngModel)]="sort">
+              <option value="name">Name</option>
+              <option value="priceAsc">Price: low to high</option>
+              <option value="priceDesc">Price: high to low</option>
+            </select>
+          </label>
+        </div>
       </div>
       <div class="category-strip" aria-label="Menu categories">
-        <button type="button" [class.active]="selectedCategoryId === null" (click)="selectCategory(null)">
+        <button type="button" [class.active]="selectedCategoryId === null && !showFavorites" (click)="selectCategory(null)">
           <i class="fa-solid fa-border-all"></i><span>All items</span><b>{{ totalItemCount }}</b>
+        </button>
+        <button type="button" [class.active]="showFavorites" (click)="selectFavorites()">
+          <i class="fa-solid fa-heart"></i><span>Favorites</span><b>{{ favoriteIds.size }}</b>
         </button>
         <button type="button" *ngFor="let category of categories" [class.active]="selectedCategoryId === category.categoryId" (click)="selectCategory(category.categoryId)">
           <i class="fa-solid fa-bowl-food"></i><span>{{ category.categoryName }}</span><b>{{ category.menuItems?.length || 0 }}</b>
         </button>
       </div>
+      <div class="menu-result-line"><span>{{ visibleItems.length }} {{ visibleItems.length === 1 ? 'item' : 'items' }}</span><span *ngIf="showFavorites">Saved on this device</span></div>
       <div class="grid menu-grid">
-        <article class="card menu-card" *ngFor="let item of items">
+        <article class="card menu-card" *ngFor="let item of visibleItems">
+          <button type="button" class="favorite-button" [class.active]="favoriteIds.has(item.menuItemId)" (click)="toggleFavorite(item)" [attr.aria-label]="favoriteIds.has(item.menuItemId) ? 'Remove from favorites' : 'Add to favorites'" [title]="favoriteIds.has(item.menuItemId) ? 'Remove from favorites' : 'Add to favorites'">
+            <i class="fa-solid fa-heart"></i>
+          </button>
           <img *ngIf="hasImage(item); else initial" class="menu-image" [src]="imageUrl(item)" [alt]="item.name" (error)="imageFailed(item)">
           <ng-template #initial><div class="image-fill">{{ item.name[0] }}</div></ng-template>
           <div class="menu-card-body"><h3>{{ item.name }}</h3><p>{{ item.description || 'Freshly prepared by HomeTown Cafe.' }}</p><b>{{ item.price | currency:'NPR ' }}</b></div>
         </article>
       </div>
-      <p class="empty-state" *ngIf="!items.length"><i class="fa-solid fa-utensils"></i> No menu items found in this category.</p>
+      <p class="empty-state" *ngIf="!visibleItems.length"><i class="fa-solid fa-utensils"></i> {{ showFavorites ? 'No favorites saved yet.' : 'No menu items found in this category.' }}</p>
     </section>`
 })
 export class MenuPageComponent implements OnInit {
   items: MenuItem[] = [];
   categories: any[] = [];
   search = '';
+  sort = 'name';
   selectedCategoryId: number | null = null;
+  showFavorites = false;
+  favoriteIds = this.readFavorites();
   failedImages = new Set<number>();
   constructor(private api: ApiService) {}
   get totalItemCount() { return this.categories.reduce((total, category) => total + (category.menuItems?.length || 0), 0); }
+  get visibleItems() {
+    const filtered = this.showFavorites ? this.items.filter(item => this.favoriteIds.has(item.menuItemId)) : [...this.items];
+    return filtered.sort((a, b) => {
+      if (this.sort === 'priceAsc') return a.price - b.price;
+      if (this.sort === 'priceDesc') return b.price - a.price;
+      return a.name.localeCompare(b.name);
+    });
+  }
   ngOnInit() {
     this.api.get<any[]>('menu-categories').subscribe(data => this.categories = data.filter(category => category.isActive));
     this.load();
   }
   selectCategory(categoryId: number | null) {
+    this.showFavorites = false;
     this.selectedCategoryId = categoryId;
     this.load();
+  }
+  selectFavorites() {
+    this.showFavorites = true;
+    this.selectedCategoryId = null;
+    this.load();
+  }
+  toggleFavorite(item: MenuItem) {
+    if (this.favoriteIds.has(item.menuItemId)) this.favoriteIds.delete(item.menuItemId);
+    else this.favoriteIds.add(item.menuItemId);
+    this.favoriteIds = new Set(this.favoriteIds);
+    localStorage.setItem('homeTownCafeFavorites', JSON.stringify([...this.favoriteIds]));
   }
   load() {
     const query = [
@@ -66,6 +105,13 @@ export class MenuPageComponent implements OnInit {
   }
   hasImage(item: MenuItem) { return !!item.imageUrl && !this.failedImages.has(item.menuItemId); }
   imageFailed(item: MenuItem) { this.failedImages.add(item.menuItemId); }
+  private readFavorites() {
+    try {
+      return new Set<number>(JSON.parse(localStorage.getItem('homeTownCafeFavorites') ?? '[]'));
+    } catch {
+      return new Set<number>();
+    }
+  }
   imageUrl(item: MenuItem) {
     const url = item.imageUrl ?? '';
     return url.startsWith('/uploads') ? `${environment.apiBaseUrl.replace('/api', '')}${url}` : url;
