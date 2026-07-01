@@ -21,6 +21,7 @@ coverage/
 
 # Generated deployment artifacts
 deployment/site/
+deployment/MonsterAsp/
 deployment/*.zip
 
 # IDE / OS

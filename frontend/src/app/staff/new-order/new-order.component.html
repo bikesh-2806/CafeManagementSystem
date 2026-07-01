@@ -1,0 +1,34 @@
+<section class="page">
+      <div class="page-title"><span class="eyebrow">Orders</span><h1>New order</h1></div>
+      <form class="panel wide" [formGroup]="form" (ngSubmit)="submit()" appFocusNext>
+        <div class="form-row">
+          <label class="field">Table ID<input class="form-control" type="number" formControlName="tableId"></label>
+          <label class="field">Customer ID optional<input class="form-control" type="number" formControlName="customerId"></label>
+          <button type="button" class="btn btn-outline-primary align-self-end" [disabled]="loadingOpenOrder" (click)="loadOpenOrder()">{{ loadingOpenOrder ? 'Checking...' : 'Load open order' }}</button>
+        </div>
+        <p class="open-order-hint" *ngIf="openOrderMessage">{{ openOrderMessage }}</p>
+        <div class="open-order-box" *ngIf="currentOrder">
+          <div class="d-flex justify-content-between gap-2 flex-wrap">
+            <div><b>Editing order #{{ currentOrder.orderId }}</b><p>Table {{ currentOrder.table?.tableNumber }} - {{ currentOrder.orderStatus }} - {{ currentOrder.totalAmount | currency:'NPR ' }}</p></div>
+            <span class="badge text-bg-info align-self-start">Single active bill</span>
+          </div>
+          <div class="order-edit-row" *ngFor="let item of currentOrder.orderItems">
+            <span>{{ item.menuItem?.name }}</span>
+            <input class="form-control" type="number" min="1" [(ngModel)]="item.quantity" [ngModelOptions]="{standalone: true}">
+            <input class="form-control" [(ngModel)]="item.specialNote" [ngModelOptions]="{standalone: true}" placeholder="Special note">
+            <button type="button" class="btn btn-sm btn-outline-primary" (click)="updateExistingItem(item)">Update</button>
+            <button type="button" class="btn btn-sm btn-outline-danger" (click)="deleteExistingItem(item)">Delete</button>
+          </div>
+        </div>
+        <h2 class="section-heading">{{ currentOrder ? 'Add more items to this order' : 'Create order items' }}</h2>
+        <div formArrayName="items">
+          <div class="form-row order-line" *ngFor="let group of items.controls; let i = index" [formGroupName]="i">
+            <label class="field">Menu item<select class="form-select" formControlName="menuItemId"><option *ngFor="let item of menu" [value]="item.menuItemId">{{ item.name }} - {{ item.price | currency:'NPR ' }}</option></select></label>
+            <label class="field">Quantity<input class="form-control" type="number" formControlName="quantity"></label>
+            <label class="field">Special note<input class="form-control" formControlName="specialNote"></label>
+            <button type="button" class="btn btn-outline-danger align-self-end" (click)="removeItem(i)" *ngIf="items.length > 1">Remove</button>
+          </div>
+        </div>
+        <div class="actions"><button type="button" class="btn btn-outline-primary" (click)="addItem()">Add item</button><button class="btn btn-primary" [disabled]="form.invalid">{{ currentOrder ? 'Add to existing order' : 'Submit order' }}</button></div>
+      </form>
+    </section>

@@ -1,13 +1,31 @@
 import { NgModule } from '@angular/core';
 import { RouterModule, Routes } from '@angular/router';
-import { AdminDashboardComponent, AdminListPageComponent, CategoriesPageComponent, FonepaySettingsComponent, ItemsPageComponent, ReportsPageComponent, TablesAdminPageComponent, UsersPageComponent } from './admin/admin-pages.component';
+import { AdminDashboardComponent } from './admin/admin-dashboard/admin-dashboard.component';
+import { AdminListPageComponent } from './admin/admin-list-page/admin-list-page.component';
+import { CategoriesPageComponent } from './admin/categories-page/categories-page.component';
+import { FonepaySettingsComponent } from './admin/fonepay-settings/fonepay-settings.component';
+import { ItemsPageComponent } from './admin/items-page/items-page.component';
+import { ReportsPageComponent } from './admin/reports-page/reports-page.component';
+import { TablesAdminPageComponent } from './admin/tables-admin-page/tables-admin-page.component';
+import { UsersPageComponent } from './admin/users-page/users-page.component';
 import { AuthGuard } from './core/auth.guard';
 import { RoleGuard } from './core/role.guard';
-import { CustomerDashboardComponent, MyOrdersComponent, ProfilePageComponent, ReservationPageComponent } from './customer/customer-pages.component';
-import { HomePageComponent, LoginPageComponent, MenuPageComponent, RegisterPageComponent, SimplePageComponent } from './public/public-pages.component';
-import { CustomerNavComponent } from './shared/customer-nav.component';
-import { LayoutComponent } from './shared/layout.component';
-import { BillsPageComponent, CurrentOrdersComponent, NewOrderComponent, StaffDashboardComponent, StaffTablesComponent } from './staff/staff-pages.component';
+import { CustomerDashboardComponent } from './customer/customer-dashboard/customer-dashboard.component';
+import { MyOrdersComponent } from './customer/my-orders/my-orders.component';
+import { ProfilePageComponent } from './customer/profile-page/profile-page.component';
+import { ReservationPageComponent } from './customer/reservation-page/reservation-page.component';
+import { HomePageComponent } from './public/home-page/home-page.component';
+import { LoginPageComponent } from './public/login-page/login-page.component';
+import { MenuPageComponent } from './public/menu-page/menu-page.component';
+import { RegisterPageComponent } from './public/register-page/register-page.component';
+import { SimplePageComponent } from './public/simple-page/simple-page.component';
+import { CustomerNavComponent } from './shared/customer-nav/customer-nav.component';
+import { LayoutComponent } from './shared/layout/layout.component';
+import { BillsPageComponent } from './staff/bills-page/bills-page.component';
+import { CurrentOrdersComponent } from './staff/current-orders/current-orders.component';
+import { NewOrderComponent } from './staff/new-order/new-order.component';
+import { StaffDashboardComponent } from './staff/staff-dashboard/staff-dashboard.component';
+import { StaffTablesComponent } from './staff/staff-tables/staff-tables.component';
 
 const routes: Routes = [
   {

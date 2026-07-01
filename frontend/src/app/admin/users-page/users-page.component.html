@@ -1,0 +1,14 @@
+<section class="page">
+      <div class="page-title"><span class="eyebrow">Admin</span><h1>User management</h1></div>
+      <form class="panel wide" [formGroup]="form" (ngSubmit)="save()" appFocusNext>
+        <div class="form-row">
+          <label class="field">Full name<input class="form-control" formControlName="fullName"></label>
+          <label class="field">Email<input class="form-control" formControlName="email"></label>
+          <label class="field">Phone number<input class="form-control" formControlName="phoneNumber"></label>
+          <label class="field">Role<select class="form-select" formControlName="role"><option>Waiter</option><option>Staff</option><option>Customer</option><option>Admin</option></select></label>
+          <label class="field">Password<input class="form-control" formControlName="password"></label>
+        </div>
+        <div class="actions"><button class="btn btn-primary" [disabled]="form.invalid">Save user</button></div>
+      </form>
+      <app-data-table [rows]="users" (deleteRow)="delete($event)"></app-data-table>
+    </section>

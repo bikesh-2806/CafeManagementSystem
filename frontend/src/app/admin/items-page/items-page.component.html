@@ -1,0 +1,16 @@
+<section class="page">
+      <div class="page-title"><span class="eyebrow">Menu</span><h1>Item management</h1></div>
+      <form class="panel wide" [formGroup]="form" (ngSubmit)="save()" appFocusNext>
+        <div class="form-row">
+          <label class="field">Item name<input class="form-control" formControlName="name"></label>
+          <label class="field">Description<input class="form-control" formControlName="description"></label>
+          <label class="field">Price<input class="form-control" type="number" formControlName="price"></label>
+          <label class="field">Category name<select class="form-select" formControlName="categoryId"><option *ngFor="let category of categories" [ngValue]="category.categoryId">{{ category.categoryName }}</option></select></label>
+          <label class="field">Upload image<input class="form-control" type="file" accept="image/*" (change)="uploadImage($event)"></label>
+          <label class="field">Available<select class="form-select" formControlName="isAvailable"><option [ngValue]="true">Yes</option><option [ngValue]="false">No</option></select></label>
+        </div>
+        <div class="image-preview" *ngIf="form.value.imageUrl"><img [src]="imagePreviewUrl" alt="Menu item preview"><span>{{ form.value.imageUrl }}</span></div>
+        <div class="actions"><button class="btn btn-primary" [disabled]="form.invalid || uploadingImage">{{ uploadingImage ? 'Uploading image...' : editingItemId ? 'Update item' : 'Save item' }}</button><button type="button" class="btn btn-outline-secondary" *ngIf="editingItemId" (click)="cancelEdit()">Cancel edit</button></div>
+      </form>
+      <app-data-table [rows]="rows" (editRow)="edit($event)" (deleteRow)="delete($event)"></app-data-table>
+    </section>

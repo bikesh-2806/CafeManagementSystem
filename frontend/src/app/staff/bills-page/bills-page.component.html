@@ -1,0 +1,55 @@
+<section class="page">
+      <div class="page-title"><span class="eyebrow">Billing</span><h1>Generate bill / payment update</h1></div>
+      <form class="panel wide" [formGroup]="form" (ngSubmit)="generate()" appFocusNext>
+        <div class="form-row">
+          <label class="field">Order ID<input class="form-control" type="number" formControlName="orderId"></label>
+          <label class="field">Discount amount<input class="form-control" type="number" formControlName="discountAmount"></label>
+          <label class="field">Tax amount<input class="form-control" type="number" formControlName="taxAmount"></label>
+          <label class="field">Payment method<select class="form-select" formControlName="paymentMethod"><option>Cash</option><option>Card</option><option>Online</option></select></label>
+        </div>
+        <div class="actions"><button class="btn btn-primary" [disabled]="form.invalid">Generate bill</button></div>
+      </form>
+
+      <div class="grid bills-grid">
+        <article class="card" *ngFor="let bill of bills">
+          <div class="d-flex justify-content-between gap-2"><h3>Bill #{{ bill.billId }}</h3><span class="badge" [class.text-bg-success]="bill.paymentStatus === 'Paid'" [class.text-bg-secondary]="bill.paymentStatus !== 'Paid'">{{ bill.paymentStatus }}</span></div>
+          <p>Order #{{ bill.orderId }}<span *ngIf="bill.order?.table"> - Table {{ bill.order.table.tableNumber }}</span> - {{ bill.paymentMethod }}</p>
+          <b>{{ bill.finalAmount | currency:'NPR ' }}</b>
+          <div class="actions"><button class="btn btn-sm btn-outline-primary" [disabled]="loadingBill" (click)="preview(bill)">Preview</button><button class="btn btn-sm btn-success" (click)="markPaid(bill)">Mark paid</button><button class="btn btn-sm btn-dark" [disabled]="loadingBill" (click)="print(bill)">Print</button></div>
+        </article>
+      </div>
+      <p class="text-muted" *ngIf="loadingBill">Loading bill item details...</p>
+
+      <div class="modal-backdrop-custom" *ngIf="selectedBill">
+        <div class="bill-preview">
+          <div id="printable-bill">
+            <h2>HomeTown Cafe</h2>
+            <p>Bill #{{ selectedBill.billId }} | Order #{{ selectedBill.orderId }}<span *ngIf="selectedBill.order?.table"> | Table {{ selectedBill.order.table.tableNumber }}</span></p>
+            <hr>
+            <div class="bill-items" *ngIf="billItems(selectedBill).length; else noItems">
+              <div class="bill-item bill-item-head"><span>Item</span><span>Qty</span><span>Rate</span><span>Amount</span></div>
+              <div class="bill-item" *ngFor="let item of billItems(selectedBill)">
+                <span><b>{{ item.menuItem?.name || ('Item #' + item.menuItemId) }}</b><small *ngIf="item.specialNote">{{ item.specialNote }}</small></span>
+                <span>{{ item.quantity }}</span>
+                <span>{{ item.unitPrice | currency:'NPR ' }}</span>
+                <span>{{ item.subTotal | currency:'NPR ' }}</span>
+              </div>
+            </div>
+            <ng-template #noItems><p class="text-muted">No item details available for this bill.</p></ng-template>
+            <hr>
+            <div class="bill-row"><span>Items subtotal</span><b>{{ selectedBill.totalAmount | currency:'NPR ' }}</b></div>
+            <div class="bill-row discount"><span>Discount applied</span><b>- {{ selectedBill.discountAmount | currency:'NPR ' }}</b></div>
+            <div class="bill-row tax"><span>Tax applied</span><b>+ {{ selectedBill.taxAmount | currency:'NPR ' }}</b></div>
+            <div class="bill-row final"><span>Final amount</span><b>{{ selectedBill.finalAmount | currency:'NPR ' }}</b></div>
+            <div class="payment-qr" *ngIf="fonepayQr">
+              <img [src]="fonepayQr.qrImage" alt="Fonepay payment QR">
+              <b>{{ fonepayQr.isDemo ? 'DEMO QR - NOT PAYABLE' : 'Scan with Fonepay-supported app' }}</b>
+              <span>{{ fonepayQr.amount | currency:'NPR ' }} | {{ fonepayQr.prn }}</span>
+            </div>
+            <p>Payment: {{ selectedBill.paymentStatus }} / {{ selectedBill.paymentMethod }}</p>
+            <p>Date: {{ selectedBill.billDate | date:'medium' }}</p>
+          </div>
+          <div class="actions"><button class="btn btn-outline-secondary" (click)="selectedBill = null">Close</button><button class="btn btn-outline-primary" [disabled]="qrLoading" (click)="generatePaymentQr()">{{ qrLoading ? 'Generating...' : 'Generate payment QR' }}</button><button class="btn btn-outline-success" *ngIf="fonepayQr && !fonepayQr.isDemo" (click)="checkPayment()">Check payment</button><button class="btn btn-dark" [disabled]="loadingBill" (click)="print(selectedBill)">Print bill</button></div>
+        </div>
+      </div>
+    </section>

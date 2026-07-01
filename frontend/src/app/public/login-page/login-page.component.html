@@ -1,0 +1,17 @@
+<section class="auth-page">
+  <form class="panel" [formGroup]="form" (ngSubmit)="submit()" appFocusNext>
+    <span class="eyebrow">Welcome back</span>
+    <h1>Login</h1>
+    <label class="field">
+      Email address
+      <input class="form-control" formControlName="email">
+    </label>
+    <label class="field">
+      Password
+      <input class="form-control" type="password" formControlName="password">
+    </label>
+    <button class="btn btn-primary" [disabled]="form.invalid || loading">Login</button>
+    <p class="error" *ngIf="error">{{ error }}</p>
+    <a routerLink="/register">Create customer account</a>
+  </form>
+</section>

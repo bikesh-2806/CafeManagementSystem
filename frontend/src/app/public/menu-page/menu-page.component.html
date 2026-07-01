@@ -1,0 +1,66 @@
+<section class="page">
+  <div class="toolbar-line">
+    <div><span class="eyebrow">Browse</span><h1>Menu</h1></div>
+    <div class="menu-tools">
+      <label class="field search-field">Search menu
+        <span class="input-with-icon">
+          <i class="fa-solid fa-magnifying-glass"></i>
+          <input class="form-control" [(ngModel)]="search" (input)="load()" placeholder="Search dishes">
+        </span>
+      </label>
+      <label class="field sort-field">Sort by
+        <select class="form-select" [(ngModel)]="sort">
+          <option value="name">Name</option>
+          <option value="priceAsc">Price: low to high</option>
+          <option value="priceDesc">Price: high to low</option>
+        </select>
+      </label>
+    </div>
+  </div>
+
+  <div class="category-strip" aria-label="Menu categories">
+    <button type="button" [class.active]="selectedCategoryId === null && !showFavorites" (click)="selectCategory(null)">
+      <i class="fa-solid fa-border-all"></i><span>All items</span><b>{{ totalItemCount }}</b>
+    </button>
+    <button type="button" [class.active]="showFavorites" (click)="selectFavorites()">
+      <i class="fa-solid fa-heart"></i><span>Favorites</span><b>{{ favoriteIds.size }}</b>
+    </button>
+    <button type="button" *ngFor="let category of categories"
+      [class.active]="selectedCategoryId === category.categoryId"
+      (click)="selectCategory(category.categoryId)">
+      <i class="fa-solid fa-bowl-food"></i>
+      <span>{{ category.categoryName }}</span>
+      <b>{{ category.menuItems?.length || 0 }}</b>
+    </button>
+  </div>
+
+  <div class="menu-result-line">
+    <span>{{ visibleItems.length }} {{ visibleItems.length === 1 ? 'item' : 'items' }}</span>
+    <span *ngIf="showFavorites">Saved on this device</span>
+  </div>
+
+  <div class="grid menu-grid">
+    <article class="card menu-card" *ngFor="let item of visibleItems">
+      <button type="button" class="favorite-button"
+        [class.active]="favoriteIds.has(item.menuItemId)"
+        (click)="toggleFavorite(item)"
+        [attr.aria-label]="favoriteIds.has(item.menuItemId) ? 'Remove from favorites' : 'Add to favorites'"
+        [title]="favoriteIds.has(item.menuItemId) ? 'Remove from favorites' : 'Add to favorites'">
+        <i class="fa-solid fa-heart"></i>
+      </button>
+      <img *ngIf="hasImage(item); else initial" class="menu-image"
+        [src]="imageUrl(item)" [alt]="item.name" (error)="imageFailed(item)">
+      <ng-template #initial><div class="image-fill">{{ item.name[0] }}</div></ng-template>
+      <div class="menu-card-body">
+        <h3>{{ item.name }}</h3>
+        <p>{{ item.description || 'Freshly prepared by HomeTown Cafe.' }}</p>
+        <b>{{ item.price | currency:'NPR ' }}</b>
+      </div>
+    </article>
+  </div>
+
+  <p class="empty-state" *ngIf="!visibleItems.length">
+    <i class="fa-solid fa-utensils"></i>
+    {{ showFavorites ? 'No favorites saved yet.' : 'No menu items found in this category.' }}
+  </p>
+</section>

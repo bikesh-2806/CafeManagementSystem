@@ -1,0 +1,21 @@
+<section class="page">
+      <div class="page-title"><div><span class="eyebrow">Payments</span><h1>Fonepay configuration</h1></div></div>
+      <form class="panel wide" [formGroup]="form" (ngSubmit)="save()" appFocusNext>
+        <div class="form-row">
+          <label class="field">Enabled<select class="form-select" formControlName="isEnabled"><option [ngValue]="true">Yes</option><option [ngValue]="false">No</option></select></label>
+          <label class="field">Mode<select class="form-select" formControlName="useDemoMode"><option [ngValue]="true">Local demo</option><option [ngValue]="false">Fonepay API</option></select></label>
+          <label class="field">Merchant code<input class="form-control" formControlName="merchantCode"></label>
+        </div>
+        <label class="field">Dynamic QR base URL<input class="form-control" formControlName="baseUrl"></label>
+        <div class="form-row">
+          <label class="field">Merchant secret<input class="form-control" type="password" formControlName="merchantSecret" [placeholder]="saved?.hasMerchantSecret ? 'Saved - leave blank to keep' : ''"></label>
+          <label class="field">Username<input class="form-control" formControlName="username" [placeholder]="saved?.hasUsername ? 'Saved - leave blank to keep' : ''"></label>
+          <label class="field">Password<input class="form-control" type="password" formControlName="password" [placeholder]="saved?.hasPassword ? 'Saved - leave blank to keep' : ''"></label>
+        </div>
+        <div class="payment-mode-note" [class.demo]="form.value.useDemoMode">
+          <b>{{ form.value.useDemoMode ? 'Demo mode' : 'Fonepay API mode' }}</b>
+          <span>{{ form.value.useDemoMode ? 'Creates a local, non-payable QR for testing bill amount and printing.' : 'Uses encrypted credentials and sends requests to the configured Fonepay endpoint.' }}</span>
+        </div>
+        <div class="actions"><button class="btn btn-primary" [disabled]="form.invalid || saving">{{ saving ? 'Saving...' : 'Save configuration' }}</button></div>
+      </form>
+    </section>

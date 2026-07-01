@@ -1,10 +1,4 @@
-import { Component } from '@angular/core';
-import { AuthService } from '../core/auth.service';
-
-@Component({
-  selector: 'app-customer-nav',
-  template: `
-    <header class="top-nav" [class.nav-open]="navOpen">
+<header class="top-nav" [class.nav-open]="navOpen">
       <strong><i class="fa-solid fa-mug-hot"></i> HomeTown Cafe</strong>
       <button type="button" class="nav-toggle" (click)="navOpen = !navOpen" [attr.aria-expanded]="navOpen" aria-label="Toggle navigation">
         <i class="fa-solid" [class.fa-bars]="!navOpen" [class.fa-xmark]="navOpen"></i>
@@ -20,10 +14,3 @@ import { AuthService } from '../core/auth.service';
       </nav>
     </header>
     <router-outlet></router-outlet>
-  `
-})
-export class CustomerNavComponent {
-  navOpen = false;
-  constructor(public auth: AuthService) {}
-  closeNav() { this.navOpen = false; }
-}

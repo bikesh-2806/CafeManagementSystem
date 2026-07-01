@@ -1,0 +1,11 @@
+<section class="auth-page">
+  <form class="panel" [formGroup]="form" (ngSubmit)="submit()" appFocusNext>
+    <span class="eyebrow">Customer account</span>
+    <h1>Register</h1>
+    <label class="field">Full name<input class="form-control" formControlName="fullName"></label>
+    <label class="field">Email address<input class="form-control" formControlName="email"></label>
+    <label class="field">Phone number<input class="form-control" formControlName="phoneNumber"></label>
+    <label class="field">Password<input class="form-control" type="password" formControlName="password"></label>
+    <button class="btn btn-primary" [disabled]="form.invalid">Register</button>
+  </form>
+</section>
