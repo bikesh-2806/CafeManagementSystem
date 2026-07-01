@@ -1,1 +1,11 @@
-<section class="page"><div class="page-title"><span class="eyebrow">Floor</span><h1>Table selection</h1></div><div class="grid compact"><article class="card" *ngFor="let table of tables"><h3>{{ table.tableNumber }}</h3><p>{{ table.capacity }} seats</p><span class="badge text-bg-success">{{ table.status }}</span></article></div></section>
+<section class="page">
+    <div class="page-title"><span class="eyebrow">Floor</span>
+        <h1>Table selection</h1>
+    </div>
+    <div class="grid compact">
+        <article class="card" *ngFor="let table of tables">
+            <h3>{{ table.tableNumber }}</h3>
+            <p>{{ table.capacity }} seats</p><span class="badge text-bg-success">{{ table.status }}</span>
+        </article>
+    </div>
+</section>

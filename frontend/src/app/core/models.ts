@@ -21,6 +21,10 @@ export interface MenuItem {
   price: number;
   imageUrl: string;
   categoryId: number;
+  category?: {
+    categoryId: number;
+    categoryName: string;
+  };
   isAvailable: boolean;
 }
 

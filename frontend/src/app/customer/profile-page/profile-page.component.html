@@ -1,1 +1,16 @@
-<section class="page"><div class="page-title"><span class="eyebrow">Account</span><h1>Profile</h1></div><div class="panel"><p><b>Name:</b> {{ auth.user?.fullName }}</p><p><b>Email:</b> {{ auth.user?.email }}</p><p><b>Role:</b> {{ auth.user?.role }}</p></div></section>
+<section class="page">
+    <div class="page-title"><span class="eyebrow">Account</span>
+        <h1>Profile</h1>
+    </div>
+    <div class="panel">
+        <div class="profile-avatar"><i class="fa-solid fa-user"></i></div>
+        <div class="profile-details">
+            <p><b>Name:</b> {{ auth.user?.fullName }}</p>
+            <p><b>Email:</b> {{ auth.user?.email }}</p>
+            <p><b>Role:</b> {{ auth.user?.role }}</p>
+        </div>
+        <button type="button" class="btn btn-outline-danger logout-action" (click)="auth.logout()">
+            <i class="fa-solid fa-right-from-bracket"></i> Logout
+        </button>
+    </div>
+</section>

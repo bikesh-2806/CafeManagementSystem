@@ -1,0 +1,100 @@
+.menu-item-picker,
+.table-picker {
+  position: relative;
+  z-index: 2;
+}
+
+.menu-item-picker.picker-open,
+.table-picker.picker-open {
+  z-index: 100;
+}
+
+.menu-suggestions,
+.table-suggestions {
+  position: absolute;
+  top: calc(100% - 2px);
+  right: 0;
+  left: 0;
+  z-index: 20;
+  max-height: 280px;
+  overflow-y: auto;
+  padding: 6px;
+  border: 1px solid #d6e2e0;
+  border-radius: 10px;
+  background: #fff;
+  box-shadow: 0 14px 32px rgba(15, 50, 45, 0.18);
+}
+
+.menu-suggestion,
+.table-suggestion {
+  display: flex;
+  width: 100%;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 9px 10px;
+  border: 0;
+  border-radius: 7px;
+  background: transparent;
+  color: inherit;
+  text-align: left;
+}
+
+.menu-suggestion:hover,
+.menu-suggestion:focus,
+.table-suggestion:hover,
+.table-suggestion:focus {
+  background: #eaf6f3;
+}
+
+.menu-suggestion span,
+.table-suggestion span {
+  display: grid;
+}
+
+.menu-suggestion small,
+.table-suggestion small {
+  color: #657a76;
+}
+
+.menu-suggestion strong,
+.table-suggestion strong {
+  color: #147d64;
+  white-space: nowrap;
+}
+
+.menu-suggestions p,
+.table-suggestions p {
+  margin: 8px;
+  color: #657a76;
+}
+
+.table-suggestion strong.unavailable {
+  color: #9a6700;
+}
+
+.selected-item,
+.picker-error {
+  display: block;
+  margin-top: 6px;
+  font-size: 0.82rem;
+}
+
+.selected-item {
+  color: #147d64;
+  font-weight: 700;
+}
+
+.picker-error {
+  color: #b42318;
+}
+
+.order-line {
+  align-items: start;
+}
+
+.actions .btn i,
+.order-edit-row .btn i,
+.form-row > .btn i {
+  margin-right: 5px;
+}

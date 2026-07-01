@@ -1,0 +1,36 @@
+.panel {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 18px;
+}
+
+.profile-avatar {
+  display: grid;
+  width: 58px;
+  height: 58px;
+  place-items: center;
+  border-radius: 50%;
+  background: #e4f4ef;
+  color: var(--brand-dark);
+  font-size: 1.35rem;
+}
+
+.profile-details p {
+  margin: 4px 0;
+}
+
+.logout-action i {
+  margin-right: 6px;
+}
+
+@media (max-width: 600px) {
+  .panel {
+    grid-template-columns: auto minmax(0, 1fr);
+  }
+
+  .logout-action {
+    grid-column: 1 / -1;
+    width: 100%;
+  }
+}

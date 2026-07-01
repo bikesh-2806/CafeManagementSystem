@@ -1,1 +1,17 @@
-<section class="page"><div class="page-title"><span class="eyebrow">Kitchen flow</span><h1>Current orders</h1></div><div class="grid"><article class="card" *ngFor="let order of orders"><div class="d-flex justify-content-between gap-2"><h3>Order #{{ order.orderId }}</h3><span class="badge text-bg-warning">{{ order.orderStatus }}</span></div><p>Table {{ order.table?.tableNumber }}</p><b>{{ order.totalAmount | currency:'NPR ' }}</b><div class="actions"><button class="btn btn-sm btn-outline-secondary" (click)="status(order, 'Preparing')">Preparing</button><button class="btn btn-sm btn-outline-secondary" (click)="status(order, 'Served')">Served</button><button class="btn btn-sm btn-success" (click)="status(order, 'Completed')">Completed</button></div></article></div></section>
+<section class="page">
+    <div class="page-title"><span class="eyebrow">Kitchen flow</span>
+        <h1>Current orders</h1>
+    </div>
+    <div class="grid">
+        <article class="card" *ngFor="let order of orders">
+            <div class="d-flex justify-content-between gap-2">
+                <h3>Order #{{ order.orderId }}</h3><span class="badge text-bg-warning">{{ order.orderStatus }}</span>
+            </div>
+            <p>Table {{ order.table?.tableNumber }}</p><b>{{ order.totalAmount | currency:'NPR ' }}</b>
+            <div class="actions"><button class="btn btn-sm btn-outline-secondary"
+                    (click)="status(order, 'Preparing')">Preparing</button><button
+                    class="btn btn-sm btn-outline-secondary" (click)="status(order, 'Served')">Served</button><button
+                    class="btn btn-sm btn-success" (click)="status(order, 'Completed')">Completed</button></div>
+        </article>
+    </div>
+</section>

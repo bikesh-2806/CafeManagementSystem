@@ -1,34 +1,118 @@
 <section class="page">
-      <div class="page-title"><span class="eyebrow">Orders</span><h1>New order</h1></div>
-      <form class="panel wide" [formGroup]="form" (ngSubmit)="submit()" appFocusNext>
-        <div class="form-row">
-          <label class="field">Table ID<input class="form-control" type="number" formControlName="tableId"></label>
-          <label class="field">Customer ID optional<input class="form-control" type="number" formControlName="customerId"></label>
-          <button type="button" class="btn btn-outline-primary align-self-end" [disabled]="loadingOpenOrder" (click)="loadOpenOrder()">{{ loadingOpenOrder ? 'Checking...' : 'Load open order' }}</button>
+  <div class="page-title"><span class="eyebrow">Orders</span>
+    <h1>New order</h1>
+  </div>
+  <form class="panel wide" [formGroup]="form" (ngSubmit)="submit()" appFocusNext>
+    <div class="form-row">
+      <label class="field table-picker" [class.picker-open]="tablePickerOpen">
+        Select table
+        <span class="input-with-icon">
+          <i class="fa-solid fa-chair"></i>
+          <input class="form-control" type="search" autocomplete="off" placeholder="Type table name..."
+            [ngModel]="tableQuery" [ngModelOptions]="{ standalone: true }" (focus)="openTablePicker()"
+            (blur)="closeTablePicker()" (keydown)="handleTableKeydown($event)" (ngModelChange)="resolveTable($event)">
+        </span>
+        <div class="table-suggestions" *ngIf="tablePickerOpen">
+          <button type="button" class="table-suggestion" *ngFor="let table of filteredTables()"
+            (mousedown)="chooseTable(table)">
+            <span><b>{{ table.tableNumber }}</b><small>{{ table.capacity }} seats</small></span>
+            <strong [class.unavailable]="table.status !== 'Available'">{{ table.status }}</strong>
+          </button>
+          <p *ngIf="!filteredTables().length">No matching tables.</p>
         </div>
-        <p class="open-order-hint" *ngIf="openOrderMessage">{{ openOrderMessage }}</p>
-        <div class="open-order-box" *ngIf="currentOrder">
-          <div class="d-flex justify-content-between gap-2 flex-wrap">
-            <div><b>Editing order #{{ currentOrder.orderId }}</b><p>Table {{ currentOrder.table?.tableNumber }} - {{ currentOrder.orderStatus }} - {{ currentOrder.totalAmount | currency:'NPR ' }}</p></div>
-            <span class="badge text-bg-info align-self-start">Single active bill</span>
-          </div>
-          <div class="order-edit-row" *ngFor="let item of currentOrder.orderItems">
-            <span>{{ item.menuItem?.name }}</span>
-            <input class="form-control" type="number" min="1" [(ngModel)]="item.quantity" [ngModelOptions]="{standalone: true}">
-            <input class="form-control" [(ngModel)]="item.specialNote" [ngModelOptions]="{standalone: true}" placeholder="Special note">
-            <button type="button" class="btn btn-sm btn-outline-primary" (click)="updateExistingItem(item)">Update</button>
-            <button type="button" class="btn btn-sm btn-outline-danger" (click)="deleteExistingItem(item)">Delete</button>
-          </div>
+        <span class="selected-item" *ngIf="selectedTable() as table">
+          <i class="fa-solid fa-circle-check"></i>
+          {{ table.tableNumber }} · {{ table.capacity }} seats · {{ table.status }}
+        </span>
+        <span class="picker-error" *ngIf="tableQuery && form.get('tableId')?.invalid">
+          Select a table from the suggestions.
+        </span>
+        <input type="hidden" formControlName="tableId">
+      </label>
+      <label class="field">Customer ID optional<input class="form-control" type="number"
+          formControlName="customerId"></label>
+      <button type="button" class="btn btn-outline-primary align-self-end"
+        [disabled]="loadingOpenOrder || form.get('tableId')?.invalid" (click)="loadOpenOrder()">
+        <i class="fa-solid" [class.fa-spinner]="loadingOpenOrder" [class.fa-spin]="loadingOpenOrder"
+          [class.fa-folder-open]="!loadingOpenOrder"></i>
+        {{ loadingOpenOrder ? 'Checking...' : 'Load open order' }}
+      </button>
+    </div>
+    <p class="open-order-hint" *ngIf="openOrderMessage">{{ openOrderMessage }}</p>
+    <div class="open-order-box" *ngIf="currentOrder">
+      <div class="d-flex justify-content-between gap-2 flex-wrap">
+        <div><b>Editing order #{{ currentOrder.orderId }}</b>
+          <p>Table {{ currentOrder.table?.tableNumber }} - {{ currentOrder.orderStatus }} - {{ currentOrder.totalAmount
+            | currency:'NPR ' }}</p>
         </div>
-        <h2 class="section-heading">{{ currentOrder ? 'Add more items to this order' : 'Create order items' }}</h2>
-        <div formArrayName="items">
-          <div class="form-row order-line" *ngFor="let group of items.controls; let i = index" [formGroupName]="i">
-            <label class="field">Menu item<select class="form-select" formControlName="menuItemId"><option *ngFor="let item of menu" [value]="item.menuItemId">{{ item.name }} - {{ item.price | currency:'NPR ' }}</option></select></label>
-            <label class="field">Quantity<input class="form-control" type="number" formControlName="quantity"></label>
-            <label class="field">Special note<input class="form-control" formControlName="specialNote"></label>
-            <button type="button" class="btn btn-outline-danger align-self-end" (click)="removeItem(i)" *ngIf="items.length > 1">Remove</button>
+        <span class="badge text-bg-info align-self-start">Single active bill</span>
+      </div>
+      <div class="order-edit-row" *ngFor="let item of currentOrder.orderItems">
+        <span>{{ item.menuItem?.name }}</span>
+        <input class="form-control" type="number" min="1" [(ngModel)]="item.quantity"
+          [ngModelOptions]="{standalone: true}">
+        <input class="form-control" [(ngModel)]="item.specialNote" [ngModelOptions]="{standalone: true}"
+          placeholder="Special note">
+        <button type="button" class="btn btn-sm btn-outline-primary" (click)="updateExistingItem(item)">
+          <i class="fa-solid fa-floppy-disk"></i> Save
+        </button>
+        <button type="button" class="btn btn-sm btn-outline-danger" (click)="deleteExistingItem(item)">
+          <i class="fa-solid fa-trash-can"></i> Delete
+        </button>
+      </div>
+    </div>
+    <h2 class="section-heading">{{ currentOrder ? 'Add more items to this order' : 'Create order items' }}</h2>
+    <div formArrayName="items">
+      <div class="form-row order-line" *ngFor="let group of items.controls; let i = index" [formGroupName]="i">
+        <label class="field menu-item-picker" [class.picker-open]="pickerOpen[i]">
+          Search menu item
+          <span class="input-with-icon">
+            <i class="fa-solid fa-magnifying-glass"></i>
+            <input class="form-control" type="search" autocomplete="off" placeholder="Type item name..."
+              [ngModel]="itemQueries[i]" [ngModelOptions]="{ standalone: true }" (focus)="openMenuPicker(i)"
+              (blur)="closePicker(i)" (keydown)="handlePickerKeydown(i, $event)"
+              (ngModelChange)="resolveMenuItem(i, $event)">
+          </span>
+          <div class="menu-suggestions" *ngIf="pickerOpen[i]">
+            <button type="button" class="menu-suggestion" *ngFor="let item of filteredMenu(i)"
+              (mousedown)="chooseMenuItem(i, item)">
+              <span>
+                <b>{{ item.name }}</b>
+                <small>{{ item.category?.categoryName || 'Menu' }}</small>
+              </span>
+              <strong>{{ item.price | currency:'NPR ' }}</strong>
+            </button>
+            <p *ngIf="!filteredMenu(i).length">No matching menu items.</p>
           </div>
-        </div>
-        <div class="actions"><button type="button" class="btn btn-outline-primary" (click)="addItem()">Add item</button><button class="btn btn-primary" [disabled]="form.invalid">{{ currentOrder ? 'Add to existing order' : 'Submit order' }}</button></div>
-      </form>
-    </section>
+          <span class="selected-item" *ngIf="selectedMenuItem(i) as selected">
+            <i class="fa-solid fa-circle-check"></i>
+            {{ selected.name }} · {{ selected.price | currency:'NPR ' }}
+          </span>
+          <span class="picker-error" *ngIf="itemQueries[i] && group.get('menuItemId')?.invalid">
+            Select an item from the suggestions.
+          </span>
+          <input type="hidden" formControlName="menuItemId">
+        </label>
+        <label class="field">Quantity<input class="form-control" type="number" min="1"
+            formControlName="quantity"></label>
+        <label class="field">Special note<input class="form-control" formControlName="specialNote"></label>
+        <button type="button" class="btn btn-outline-danger align-self-end" (click)="removeItem(i)"
+          *ngIf="items.length > 1">
+          <i class="fa-solid fa-trash-can"></i> Remove
+        </button>
+      </div>
+    </div>
+    <div class="actions">
+      <button type="button" class="btn btn-outline-primary" (click)="addItem()">
+        <i class="fa-solid fa-plus"></i> Add item
+      </button>
+      <button type="button" class="btn btn-outline-secondary" (click)="cancelDraft()">
+        <i class="fa-solid fa-xmark"></i> Cancel
+      </button>
+      <button class="btn btn-primary" [disabled]="form.invalid">
+        <i class="fa-solid" [class.fa-cart-plus]="currentOrder" [class.fa-paper-plane]="!currentOrder"></i>
+        {{ currentOrder ? 'Add to existing order' : 'Submit order' }}
+      </button>
+    </div>
+  </form>
+</section>

@@ -1,28 +1,13 @@
 <div class="shell">
       <aside class="sidebar" [class.nav-open]="navOpen" *ngIf="auth.user as user">
         <div class="sidebar-head">
-          <div class="brand-block">
-            <h2><i class="fa-solid fa-mug-hot"></i> HomeTown Cafe</h2>
-            <p>{{ user.fullName }} - {{ user.role }}</p>
-          </div>
+          <a class="brand-logo" [routerLink]="user.role === 'Admin' ? '/admin/dashboard' : '/staff/dashboard'" aria-label="HomeTown Cafe dashboard" title="HomeTown Cafe">
+            <img src="assets/branding/home-town-cafe-logo-black.png" alt="HOME TOWN Café">
+          </a>
           <button type="button" class="nav-toggle" (click)="navOpen = !navOpen" [attr.aria-expanded]="navOpen" aria-label="Toggle navigation">
             <i class="fa-solid" [class.fa-bars]="!navOpen" [class.fa-xmark]="navOpen"></i>
           </button>
         </div>
-        <details class="notification-panel" (toggle)="notifications.markRead()">
-          <summary>
-            <span><i class="fa-solid fa-bell"></i> Notifications</span>
-            <b *ngIf="notifications.unread$ | async as unread">{{ unread }}</b>
-          </summary>
-          <div class="notification-list">
-            <article *ngFor="let item of notifications.notifications$ | async">
-              <strong>{{ item.title }}</strong>
-              <span>{{ item.text }}</span>
-            </article>
-            <p *ngIf="!(notifications.notifications$ | async)?.length">No new orders yet.</p>
-            <button type="button" class="ghost" (click)="notifications.clear()">Clear</button>
-          </div>
-        </details>
         <ng-container [ngSwitch]="user.role">
           <nav class="app-nav" [class.open]="navOpen" *ngSwitchCase="'Admin'">
             <a routerLink="/admin/dashboard" routerLinkActive="active" (click)="closeNav()"><i class="fa-solid fa-chart-line"></i><span>Dashboard</span></a>
@@ -43,7 +28,46 @@
             <a routerLink="/staff/bills" routerLinkActive="active" (click)="closeNav()"><i class="fa-solid fa-file-invoice-dollar"></i><span>Bills</span></a>
           </nav>
         </ng-container>
-        <button class="ghost logout-button" (click)="auth.logout()"><i class="fa-solid fa-right-from-bracket"></i> Logout</button>
       </aside>
-      <main class="content"><router-outlet></router-outlet></main>
+      <div class="workspace" *ngIf="auth.user as user">
+        <header class="app-topbar">
+          <div class="topbar-actions">
+            <details #profileMenu class="profile-menu" (toggle)="profileToggled($event)">
+              <summary class="topbar-icon" aria-label="Open profile" title="Profile">
+                <i class="fa-solid fa-user"></i>
+              </summary>
+              <div class="profile-popover">
+                <div class="profile-popover-head">
+                  <span class="profile-popover-avatar"><i class="fa-solid fa-user"></i></span>
+                  <div>
+                    <strong>{{ user.fullName }}</strong>
+                    <small>{{ user.role }}</small>
+                  </div>
+                </div>
+                <p><i class="fa-solid fa-envelope"></i> {{ user.email }}</p>
+                <button type="button" class="btn btn-outline-danger" (click)="auth.logout()">
+                  <i class="fa-solid fa-right-from-bracket"></i> Logout
+                </button>
+              </div>
+            </details>
+            <details #notificationMenu class="notification-panel topbar-notifications" (toggle)="notificationsToggled($event)">
+              <summary aria-label="Notifications" title="Notifications">
+                <i class="fa-solid fa-bell"></i>
+                <b *ngIf="notifications.unread$ | async as unread">{{ unread }}</b>
+              </summary>
+              <div class="notification-list">
+                <article *ngFor="let item of notifications.notifications$ | async">
+                  <strong>{{ item.title }}</strong>
+                  <span>{{ item.text }}</span>
+                </article>
+                <p *ngIf="!(notifications.notifications$ | async)?.length">No new orders yet.</p>
+                <button type="button" class="ghost" (click)="notifications.clear()">
+                  <i class="fa-solid fa-check-double"></i> Clear notifications
+                </button>
+              </div>
+            </details>
+          </div>
+        </header>
+        <main class="content"><router-outlet></router-outlet></main>
+      </div>
     </div>

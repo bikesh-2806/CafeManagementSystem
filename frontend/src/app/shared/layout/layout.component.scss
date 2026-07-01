@@ -1,0 +1,232 @@
+.workspace {
+  min-width: 0;
+  background: #f6f9fb;
+}
+
+.brand-logo {
+  display: block;
+  width: 132px;
+  aspect-ratio: 2 / 1;
+  border-radius: 8px;
+  background: #000;
+  overflow: hidden;
+  text-decoration: none;
+}
+
+.brand-logo img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+
+.brand-logo:hover {
+  opacity: 0.9;
+}
+
+.app-topbar {
+  position: sticky;
+  top: 0;
+  z-index: 30;
+  display: flex;
+  min-height: 64px;
+  align-items: center;
+  justify-content: flex-end;
+  padding: 10px clamp(18px, 3vw, 30px);
+  border-bottom: 1px solid var(--line);
+  background: rgba(255, 255, 255, 0.96);
+  box-shadow: 0 8px 24px rgba(31, 41, 55, 0.05);
+  backdrop-filter: blur(12px);
+}
+
+.topbar-actions {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+}
+
+.topbar-icon,
+.topbar-notifications summary {
+  display: grid;
+  width: 42px;
+  height: 42px;
+  place-items: center;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  background: #fff;
+  color: var(--brand-dark);
+  font-size: 1.05rem;
+  text-decoration: none;
+}
+
+.topbar-icon:hover,
+.topbar-notifications summary:hover {
+  border-color: #b9dcd4;
+  background: #e4f4ef;
+}
+
+.profile-menu {
+  position: relative;
+}
+
+.profile-menu summary {
+  cursor: pointer;
+  list-style: none;
+}
+
+.profile-menu summary::-webkit-details-marker {
+  display: none;
+}
+
+.profile-popover {
+  position: absolute;
+  top: calc(100% + 10px);
+  right: 0;
+  z-index: 50;
+  width: 290px;
+  padding: 16px;
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  background: #fff;
+  box-shadow: 0 18px 45px rgba(31, 41, 55, 0.18);
+}
+
+.profile-popover-head {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding-bottom: 12px;
+  border-bottom: 1px solid var(--line);
+}
+
+.profile-popover-head div {
+  display: grid;
+}
+
+.profile-popover-head small,
+.profile-popover p {
+  color: var(--muted);
+}
+
+.profile-popover-avatar {
+  display: grid;
+  width: 42px;
+  height: 42px;
+  place-items: center;
+  border-radius: 50%;
+  background: #e4f4ef;
+  color: var(--brand-dark);
+}
+
+.profile-popover p {
+  margin: 12px 0;
+  overflow-wrap: anywhere;
+}
+
+.profile-popover p i,
+.profile-popover button i {
+  margin-right: 6px;
+}
+
+.profile-popover button {
+  width: 100%;
+}
+
+.topbar-notifications {
+  position: relative;
+  margin: 0;
+  border: 0;
+  background: transparent;
+}
+
+.topbar-notifications summary {
+  position: relative;
+  padding: 0;
+}
+
+.topbar-notifications summary b {
+  position: absolute;
+  top: -6px;
+  right: -6px;
+  min-width: 21px;
+  height: 21px;
+  padding: 0 5px;
+  font-size: 0.7rem;
+}
+
+.topbar-notifications .notification-list {
+  position: absolute;
+  top: calc(100% + 10px);
+  right: 0;
+  z-index: 50;
+  width: min(360px, calc(100vw - 36px));
+  max-height: 420px;
+  overflow-y: auto;
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  background: #fff;
+  box-shadow: 0 18px 45px rgba(31, 41, 55, 0.18);
+}
+
+.topbar-notifications .ghost {
+  width: 100%;
+  justify-content: center;
+}
+
+@media (max-width: 760px) {
+  :host {
+    display: block;
+  }
+
+  .sidebar {
+    min-height: 72px;
+    padding: 10px 12px;
+    gap: 0;
+  }
+
+  .sidebar-head {
+    height: 52px;
+    align-items: center;
+  }
+
+  .brand-logo {
+    width: 104px;
+    border-radius: 6px;
+  }
+
+  .app-topbar {
+    position: fixed;
+    top: 16px;
+    right: 64px;
+    z-index: 50;
+    min-height: 0;
+    padding: 0;
+    border: 0;
+    background: transparent;
+    box-shadow: none;
+    backdrop-filter: none;
+  }
+
+  .topbar-icon,
+  .topbar-notifications summary {
+    width: 40px;
+    min-width: 40px;
+    height: 40px;
+  }
+
+  .profile-popover {
+    position: fixed;
+    top: 68px;
+    right: 12px;
+    left: 12px;
+    width: auto;
+  }
+
+  .topbar-notifications .notification-list {
+    position: fixed;
+    top: 68px;
+    right: 12px;
+    left: 12px;
+    width: auto;
+    max-height: min(420px, calc(100vh - 86px));
+  }
+}
